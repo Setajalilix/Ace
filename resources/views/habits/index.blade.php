@@ -1,378 +1,43 @@
 @extends('layouts.app')
-
+@section('title', 'Habits — '.config('app.name'))
 @section('content')
-
-    <div class="max-w-7xl mx-auto space-y-8">
-
-        {{-- Header --}}
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-            <div>
-
-                <h1 class="text-4xl font-black">
-                    عادت‌های من
-                </h1>
-
-                <p class="text-zinc-500 mt-3 leading-8">
-
-                    عادت‌هایی که امروز،
-                    آینده تو را می‌سازند.
-
-                </p>
-
-            </div>
-
-            <div class="flex items-center gap-4">
-
-                {{-- Search --}}
-                <div class="relative hidden md:block">
-
-                    <input
-                        type="text"
-                        placeholder="جستجوی عادت..."
-
-                        class="
-                        w-72 h-14 pr-5 pl-12 rounded-2xl
-                        bg-white/5 border border-white/10
-                        focus:outline-none focus:ring-2
-                        focus:ring-indigo-500/40
-                        placeholder:text-zinc-600
-                    "
-                    >
-
-                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
-                        ⌕
-                    </div>
-
-                </div>
-
-                {{-- Create --}}
-                <a
-                    href="{{ route('habits.create') }}"
-                    class="
-                    h-14 px-7 rounded-2xl
-                    bg-white text-black
-                    font-bold flex items-center justify-center
-                    hover:scale-[1.02] transition
-                "
-                >
-
-                    + عادت جدید
-
-                </a>
-
-            </div>
-
+<div x-data="{ view: localStorage.getItem('ace_habits_view') || 'grid' }"
+     x-init="$watch('view', v => localStorage.setItem('ace_habits_view', v))"
+     @ace:open-habit-create.window="window.dispatchEvent(new CustomEvent('ace:open-habit-create'))">
+    <div class="flex items-center justify-between mb-6 gap-4">
+        <div>
+            <h1 class="page-title">Habits</h1>
+            <p class="text-sm text-[#A8958B] mt-1">Track and complete habits here</p>
         </div>
-
-        {{-- Stats --}}
-        <div class="grid grid-cols-2 xl:grid-cols-4 gap-5">
-
-            <div class="glass-card p-5">
-
-                <div class="text-zinc-500 text-sm mb-2">
-                    کل عادت‌ها
-                </div>
-
-                <div class="text-4xl font-black">
-                    {{ $habits->count() }}
-                </div>
-
+        <div class="flex items-center gap-2 shrink-0">
+            <div class="flex gap-1 p-1 bg-[#F3EDE4] rounded-xl">
+                <button type="button" @click="view = 'grid'" :class="view === 'grid' ? 'bg-white shadow-sm text-[#3D3229]' : 'text-[#A8958B]'" class="p-2 rounded-lg transition-all" title="Grid view">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
+                </button>
+                <button type="button" @click="view = 'list'" :class="view === 'list' ? 'bg-white shadow-sm text-[#3D3229]' : 'text-[#A8958B]'" class="p-2 rounded-lg transition-all" title="List view">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm0 5.25h.007v.008H3.75v-.008Zm0 5.25h.007v.008H3.75v-.008Z"/></svg>
+                </button>
             </div>
-
-            <div class="glass-card p-5">
-
-                <div class="text-zinc-500 text-sm mb-2">
-                    عادت‌های زمان‌دار
-                </div>
-
-                <div class="text-4xl font-black text-fuchsia-400">
-                    {{ $habits->where('type', 'timer')->count() }}
-                </div>
-
-            </div>
-
-            <div class="glass-card p-5">
-
-                <div class="text-zinc-500 text-sm mb-2">
-                    عادت‌های تیک‌دار
-                </div>
-
-                <div class="text-4xl font-black text-emerald-400">
-                    {{ $habits->where('type', 'checkbox')->count() }}
-                </div>
-
-            </div>
-
-            <div class="glass-card p-5">
-
-                <div class="text-zinc-500 text-sm mb-2">
-                    دارای Time Block
-                </div>
-
-                <div class="text-4xl font-black text-orange-400">
-                    {{ $habits->where('has_time_block', true)->count() }}
-                </div>
-
-            </div>
-
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('ace:open-habit-create'))" class="btn-primary"><x-icon name="plus" class="w-4 h-4" /> New Habit</button>
         </div>
-
-        {{-- Habits --}}
-        <div class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-
-            @forelse($habits as $habit)
-
-                <div class="habit-card p-6 relative overflow-hidden">
-
-                    {{-- Top Border --}}
-                    <div
-                        class="absolute top-0 left-0 w-full h-1"
-                        style="background: {{ $habit->color }}"
-                    >
-                    </div>
-
-                    {{-- Header --}}
-                    <div class="flex items-start justify-between mb-8">
-
-                        <div class="flex items-center gap-4">
-
-                            <div
-                                class="w-16 h-16 rounded-3xl flex items-center justify-center text-3xl"
-                                style="
-                                background: {{ $habit->color }}20;
-                                color: {{ $habit->color }};
-                            "
-                            >
-                                {{ $habit->icon }}
-                            </div>
-
-                            <div>
-
-                                <h2 class="text-xl font-bold mb-2">
-                                    {{ $habit->title }}
-                                </h2>
-
-                                <div class="flex items-center gap-2 text-sm text-zinc-500">
-
-                                    @if($habit->type === 'timer')
-
-                                        <span class="text-fuchsia-400">
-                                        زمان‌دار
-                                    </span>
-
-                                    @else
-
-                                        <span class="text-emerald-400">
-                                        تیک‌دار
-                                    </span>
-
-                                    @endif
-
-                                    <span class="w-1 h-1 rounded-full bg-zinc-600"></span>
-
-                                    <span>
-                                    هر {{ $habit->repeat_every }} روز
-                                </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        @if($habit->has_time_block)
-
-                            <div
-                                class="
-                                px-3 py-2 rounded-2xl
-                                bg-orange-500/10
-                                border border-orange-500/10
-                                text-orange-400 text-sm
-                            "
-                            >
-
-                                {{ $habit->block_time }}
-
-                            </div>
-
-                        @endif
-
-                    </div>
-
-                    {{-- Description --}}
-                    <p class="text-zinc-500 leading-8 text-sm mb-8 line-clamp-2 min-h-[56px]">
-
-                        {{ $habit->description ?: 'توضیحی برای این عادت ثبت نشده است.' }}
-
-                    </p>
-
-                    {{-- Progress --}}
-                    @if($habit->type === 'timer')
-
-                        @php
-                            $todayTarget = $habit->todayTargetMinutes();
-                        @endphp
-
-                        <div class="mb-7">
-
-                            <div class="flex items-center justify-between mb-3">
-
-                            <span class="text-sm text-zinc-500">
-                                هدف امروز
-                            </span>
-
-                                <span class="font-bold">
-
-                                {{ $todayTarget }} دقیقه
-
-                            </span>
-
-                            </div>
-
-                            <div class="progress-track">
-
-                                <div
-                                    class="progress-fill"
-                                    style="
-                                    width: 65%;
-                                    background: {{ $habit->color }}
-                                "
-                                >
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    @else
-
-                        <div class="mb-7">
-
-                            <div class="flex items-center justify-between mb-3">
-
-                            <span class="text-sm text-zinc-500">
-                                وضعیت
-                            </span>
-
-                                <span class="font-bold text-emerald-400">
-                                فعال
-                            </span>
-
-                            </div>
-
-                            <div class="progress-track">
-
-                                <div
-                                    class="progress-fill bg-emerald-400"
-                                    style="width: 85%"
-                                >
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    @endif
-
-                    {{-- Footer --}}
-                    <div class="flex items-center gap-3">
-
-                        <a
-                            href="{{ route('habits.show', $habit) }}"
-                            class="
-                            flex-1 h-14 rounded-2xl
-                            bg-white text-black
-                            flex items-center justify-center
-                            font-bold hover:scale-[1.01]
-                            transition
-                        "
-                        >
-
-                            مشاهده
-
-                        </a>
-
-                        <a
-                            href="{{ route('habits.edit', $habit) }}"
-                            class="
-                            w-14 h-14 rounded-2xl
-                            border border-white/10
-                            hover:bg-white/5
-                            flex items-center justify-center
-                            transition
-                        "
-                        >
-
-                            ✎
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            @empty
-
-                {{-- Empty State --}}
-                <div class="col-span-full">
-
-                    <div
-                        class="
-                        glass-card p-16
-                        text-center
-                    "
-                    >
-
-                        <div class="text-7xl mb-6">
-                            🪴
-                        </div>
-
-                        <h2 class="text-3xl font-black mb-4">
-                            هنوز عادتی نساختی
-                        </h2>
-
-                        <p class="text-zinc-500 max-w-xl mx-auto leading-8 mb-8">
-
-                            اولین عادتت را بساز و
-                            مسیر دیسیپلین شخصی خودت را شروع کن.
-
-                        </p>
-
-                        <a
-                            href="{{ route('habits.create') }}"
-                            class="
-                            inline-flex h-14 px-8 rounded-2xl
-                            bg-white text-black
-                            items-center justify-center
-                            font-bold hover:scale-[1.02]
-                            transition
-                        "
-                        >
-
-                            ساخت اولین عادت
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            @endforelse
-
-        </div>
-
-        {{-- Pagination --}}
-        @if(method_exists($habits, 'links'))
-
-            <div class="pt-4">
-
-                {{ $habits->links() }}
-
-            </div>
-
-        @endif
-
     </div>
 
+    <div x-show="view === 'grid'" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @forelse($habits as $habit)
+            <x-habit-card :habit="$habit" :log="$habit->logs->first()" />
+        @empty
+            <div class="card col-span-full text-center py-12 text-[#A8958B]">No habits yet.</div>
+        @endforelse
+    </div>
+
+    <div x-show="view === 'list'" x-cloak class="space-y-2">
+        @forelse($habits as $habit)
+            <x-habit-list-row :habit="$habit" :log="$habit->logs->first()" />
+        @empty
+            <div class="card text-center py-12 text-[#A8958B]">No habits yet.</div>
+        @endforelse
+    </div>
+
+    <div class="mt-4">{{ $habits->links() }}</div>
+</div>
 @endsection

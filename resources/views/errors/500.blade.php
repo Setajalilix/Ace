@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('code', '500')
+@section('emoji', '⚡')
+@section('title', 'Something went wrong')
+@section('message', 'We hit an unexpected error. Try again in a moment — your data is safe.')

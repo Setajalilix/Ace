@@ -1,18 +1,36 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\HabitController;
-use App\Http\Controllers\HabitLogController;
+/*
+|--------------------------------------------------------------------------
+| Ace — modular domain routes
+|--------------------------------------------------------------------------
+|
+| Each feature domain owns its routes in routes/domains/{domain}.php.
+| Auth guest routes load separately from authenticated domain routes.
+|
+*/
 
-Route::get('/', [DashboardController::class, 'index'])
-    ->name('dashboard');
+require __DIR__.'/domains/auth.php';
 
-Route::resource('habits', HabitController::class);
-
-Route::post('/habits/{habit}/toggle',
-    [HabitLogController::class, 'toggle'])
-    ->name('habits.toggle');
-
-Route::post('/habits/{habit}/timer',
-    [HabitLogController::class, 'saveTimer'])
-    ->name('habits.timer');
+Route::middleware('auth')->group(function () {
+    foreach ([
+        'planner',
+        'life-areas',
+        'goals',
+        'tasks',
+        'inbox',
+        'notes',
+        'journal',
+        'time-blocks',
+        'events',
+        'calendar',
+        'habits',
+        'focus',
+        'shutdown',
+        'reviews',
+        'statistics',
+        'settings',
+    ] as $domain) {
+        require __DIR__."/domains/{$domain}.php";
+    }
+});

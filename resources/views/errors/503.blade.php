@@ -1,0 +1,5 @@
+@extends('errors.layout')
+@section('code', '503')
+@section('emoji', '🛠')
+@section('title', 'Be right back')
+@section('message', 'Ace is temporarily unavailable for maintenance. Please check back soon.')
